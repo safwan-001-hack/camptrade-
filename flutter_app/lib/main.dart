@@ -17,119 +17,77 @@ class CampTradeApp extends StatelessWidget {
   Widget build(BuildContext context) => MaterialApp(
     debugShowCheckedModeBanner: false,
     title: 'CampTrade',
-    theme: ThemeData(
-      useMaterial3: true,
-      colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF8DB9D9)),
-    ),
-    home: const CampTradeHome(),
+    theme: ThemeData(useMaterial3: true, colorSchemeSeed: const Color(0xFF8EC9E8)),
+    home: const HomePage(),
   );
 }
 
-class CampTradeHome extends StatefulWidget {
-  const CampTradeHome({super.key});
-  @override State<CampTradeHome> createState() => _CampTradeHomeState();
+class HomePage extends StatefulWidget {
+  const HomePage({super.key});
+  @override State<HomePage> createState() => _HomePageState();
+}
+class _HomePageState extends State<HomePage> {
+  int tab = 0;
+  final pages = const [MarketPage(), WantedPage(), OrdersPage(), ProfilePage()];
+  @override
+  Widget build(BuildContext context) => Scaffold(
+    appBar: AppBar(
+      title: const Text('CampTrade', style: TextStyle(fontWeight: FontWeight.bold)),
+      bottom: const PreferredSize(preferredSize: Size.fromHeight(25),
+        child: Align(alignment: Alignment.centerLeft, child: Padding(
+          padding: EdgeInsets.only(left:16,bottom:8), child: Text('Federal University of Technology, Minna')))),
+    ),
+    body: pages[tab],
+    bottomNavigationBar: NavigationBar(
+      selectedIndex: tab, onDestinationSelected: (v)=>setState(()=>tab=v),
+      destinations: const [
+        NavigationDestination(icon: Icon(Icons.storefront_outlined), label:'Market'),
+        NavigationDestination(icon: Icon(Icons.campaign_outlined), label:'Wanted'),
+        NavigationDestination(icon: Icon(Icons.receipt_long_outlined), label:'Orders'),
+        NavigationDestination(icon: Icon(Icons.person_outline), label:'Profile'),
+      ]),
+  );
 }
 
-class _CampTradeHomeState extends State<CampTradeHome> {
-  int tab = 0;
-  final items = const [
-    ['Laptop', '₦250,000', Icons.laptop_mac],
-    ['Sneakers', '₦35,000', Icons.directions_run],
-    ['Textbooks', '₦12,000', Icons.menu_book],
-    ['Backpack', '₦18,000', Icons.backpack],
-  ];
-
+class MarketPage extends StatelessWidget {
+  const MarketPage({super.key});
   @override
   Widget build(BuildContext context) {
-    final pages = [_market(), _wanted(), _orders(), _profile()];
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('CampTrade', style: TextStyle(fontWeight: FontWeight.bold)),
-        actions: [IconButton(onPressed: () {}, icon: const Icon(Icons.search))],
-      ),
-      body: pages[tab],
-      floatingActionButton: tab < 2 ? FloatingActionButton.extended(
-        onPressed: () => _message(tab == 0 ? 'Create listing' : 'Post wanted item'),
-        icon: const Icon(Icons.add), label: Text(tab == 0 ? 'Sell' : 'Wanted'),
-      ) : null,
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: tab, onDestinationSelected: (v) => setState(() => tab = v),
-        destinations: const [
-          NavigationDestination(icon: Icon(Icons.storefront_outlined), label: 'Market'),
-          NavigationDestination(icon: Icon(Icons.campaign_outlined), label: 'Wanted'),
-          NavigationDestination(icon: Icon(Icons.receipt_long_outlined), label: 'Orders'),
-          NavigationDestination(icon: Icon(Icons.person_outline), label: 'Profile'),
-        ],
-      ),
-    );
+    final items=[('HP Laptop','₦280,000',Icons.laptop_mac),('Campus Sneakers','₦25,000',Icons.shopping_bag),('Textbooks','₦12,000',Icons.menu_book),('Bluetooth Speaker','₦18,500',Icons.speaker)];
+    return ListView(padding: const EdgeInsets.all(16), children:[
+      TextField(decoration: InputDecoration(hintText:'Search products...',prefixIcon:const Icon(Icons.search),filled:true,border:OutlineInputBorder(borderRadius:BorderRadius.circular(16),borderSide:BorderSide.none))),
+      const SizedBox(height:16),
+      Row(children:[
+        Expanded(child:FilledButton.icon(onPressed:()=>_msg(context,'Sell'),icon:const Icon(Icons.add),label:const Text('Sell'))),
+        const SizedBox(width:10),
+        Expanded(child:OutlinedButton.icon(onPressed:()=>_msg(context,'Wanted'),icon:const Icon(Icons.campaign),label:const Text('Wanted')))]),
+      const SizedBox(height:20),
+      const Text('Marketplace',style:TextStyle(fontSize:22,fontWeight:FontWeight.bold)),
+      ...items.map((i)=>Card(child:ListTile(leading:CircleAvatar(child:Icon(i.$3)),title:Text(i.$1),subtitle:const Text('Verified campus seller'),trailing:Text(i.$2,style:const TextStyle(fontWeight:FontWeight.bold)))))
+    ]);
   }
-
-  Widget _market() => ListView(padding: const EdgeInsets.all(16), children: [
-    Card(child: ListTile(
-      leading: const CircleAvatar(child: Icon(Icons.school)),
-      title: const Text('Federal University of Technology, Minna'),
-      subtitle: const Text('Campus marketplace'),
-      trailing: const Icon(Icons.chevron_right),
-    )),
-    const SizedBox(height: 18),
-    const Text('Browse campus', style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
-    const SizedBox(height: 10),
-    Wrap(spacing: 8, children: ['Electronics','Fashion','Books','Food','Services']
-      .map((x) => Chip(label: Text(x))).toList()),
-    const SizedBox(height: 18),
-    GridView.builder(
-      shrinkWrap: true, physics: const NeverScrollableScrollPhysics(),
-      itemCount: items.length,
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2, crossAxisSpacing: 12, mainAxisSpacing: 12, childAspectRatio: .82),
-      itemBuilder: (_, i) => Card(child: Padding(padding: const EdgeInsets.all(12), child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Expanded(child: Container(
-            width: double.infinity,
-            decoration: BoxDecoration(color: const Color(0xFFDCEEF8), borderRadius: BorderRadius.circular(14)),
-            child: Icon(items[i][2] as IconData, size: 52))),
-          const SizedBox(height: 8),
-          Text(items[i][0] as String, style: const TextStyle(fontWeight: FontWeight.bold)),
-          Text(items[i][1] as String, style: const TextStyle(fontWeight: FontWeight.w600)),
-        ]))),
-    ),
+  static void _msg(BuildContext c,String s)=>ScaffoldMessenger.of(c).showSnackBar(SnackBar(content:Text('$s feature is ready for backend connection.')));
+}
+class WantedPage extends StatelessWidget {
+  const WantedPage({super.key});
+  @override Widget build(BuildContext c)=>Center(child:Column(mainAxisAlignment:MainAxisAlignment.center,children:[
+    const Icon(Icons.campaign_outlined,size:64),const SizedBox(height:12),
+    const Text('Wanted Items',style:TextStyle(fontSize:24,fontWeight:FontWeight.bold)),
+    const SizedBox(height:8),const Text('Post what you need and let campus sellers find you.'),
+    const SizedBox(height:18),FilledButton(onPressed:(){},child:const Text('Create Wanted Post'))
+  ]));
+}
+class OrdersPage extends StatelessWidget {
+  const OrdersPage({super.key});
+  @override Widget build(BuildContext c)=>const Center(child:Text('Your orders will appear here.'));
+}
+class ProfilePage extends StatelessWidget {
+  const ProfilePage({super.key});
+  @override Widget build(BuildContext c)=>const ListView(padding:EdgeInsets.all(20),children:[
+    CircleAvatar(radius:40,child:Icon(Icons.person,size:44)),SizedBox(height:12),
+    Center(child:Text('Campus Student',style:TextStyle(fontSize:21,fontWeight:FontWeight.bold))),
+    Center(child:Text('FUT Minna • Student verification')),SizedBox(height:20),
+    Card(child:ListTile(leading:Icon(Icons.verified_outlined),title:Text('Student Verification'),subtitle:Text('Connect verification to Supabase.'))),
+    Card(child:ListTile(leading:Icon(Icons.security_outlined),title:Text('Security'),subtitle:Text('Protected by Supabase authentication.')))
   ]);
-
-  Widget _wanted() => ListView(padding: const EdgeInsets.all(16), children: [
-    const Text('Wanted', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
-    const Text('Students can post what they need and sellers can respond.'),
-    const SizedBox(height: 14),
-    const Card(child: ListTile(
-      leading: CircleAvatar(child: Icon(Icons.search)),
-      title: Text('Looking for a used iPhone 12'),
-      subtitle: Text('Budget: ₦280,000 • FUT Minna'),
-    )),
-    const Card(child: ListTile(
-      leading: CircleAvatar(child: Icon(Icons.book)),
-      title: Text('Need CSC textbook'),
-      subtitle: Text('Budget: ₦8,000 • Bosso Campus'),
-    )),
-  ]);
-
-  Widget _orders() => const Center(child: Text('Your orders will appear here.'));
-  Widget _profile() => ListView(padding: const EdgeInsets.all(16), children: const [
-    CircleAvatar(radius: 42, child: Icon(Icons.person, size: 44)),
-    SizedBox(height: 14),
-    Center(child: Text('Campus Student', style: TextStyle(fontSize: 21, fontWeight: FontWeight.bold))),
-    Center(child: Text('FUT Minna')),
-    SizedBox(height: 24),
-    Card(child: ListTile(leading: Icon(Icons.verified_user_outlined),
-      title: Text('Student verification'), subtitle: Text('Verify with student ID'))),
-    Card(child: ListTile(leading: Icon(Icons.favorite_border), title: Text('Saved items'))),
-    Card(child: ListTile(leading: Icon(Icons.settings_outlined), title: Text('Settings'))),
-  ]);
-
-  void _message(String title) => showDialog(
-    context: context,
-    builder: (_) => AlertDialog(
-      title: Text(title),
-      content: const Text('This screen is ready to be connected to the CampTrade Supabase backend.'),
-      actions: [TextButton(onPressed: () => Navigator.pop(context), child: const Text('Close'))],
-    ),
-  );
 }
