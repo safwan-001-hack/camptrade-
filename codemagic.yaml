@@ -1,35 +1,24 @@
-ox      - name: Generate Android project
-        script: |
-          cd flutter_app
-          rm -rf android
-          flutter create --platforms=android --project-name camptrade --org com.camptrade .workflows:
+workflows:
   android-workflow:
     name: CampTrade Android Build
     max_build_duration: 30
-
     environment:
       flutter: stable
       groups:
         - camptrade_env
-
     scripts:
       - name: Generate Android project
         script: |
           cd flutter_app
+          rm -rf android
           flutter create --platforms=android --project-name camptrade --org com.camptrade .
-
       - name: Get Flutter packages
         script: |
           cd flutter_app
           flutter pub get
-
       - name: Build APK
         script: |
           cd flutter_app
-          flutter build apk --release \
-            --dart-define=SUPABASE_URL="$SUPABASE_URL" \
-            --dart-define=SUPABASE_ANON_KEY="$SUPABASE_ANON_KEY"
-
+          flutter build apk --release --dart-define=SUPABASE_URL="$SUPABASE_URL" --dart-define=SUPABASE_ANON_KEY="$SUPABASE_ANON_KEY"
     artifacts:
       - flutter_app/build/app/outputs/flutter-apk/*.apk
-
