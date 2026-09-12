@@ -83,7 +83,7 @@ class OrdersPage extends StatelessWidget {
 }
 class ProfilePage extends StatelessWidget {
   const ProfilePage({super.key});
-  @override Widget build(BuildContext c)=>const ListView(padding:EdgeInsets.all(20),children:[
+  @override Widget build(BuildContext c)=>ListView(padding:EdgeInsets.all(20),children:[
     CircleAvatar(radius:40,child:Icon(Icons.person,size:44)),SizedBox(height:12),
     Center(child:Text('Campus Student',style:TextStyle(fontSize:21,fontWeight:FontWeight.bold))),
     Center(child:Text('FUT Minna • Student verification')),SizedBox(height:20),
