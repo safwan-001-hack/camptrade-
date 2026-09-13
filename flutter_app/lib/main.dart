@@ -228,7 +228,7 @@ class AppData extends ChangeNotifier {
       notifyListeners();
       return null;
     } catch (e) {
-      return 'Could not sign in: check your email and password.';
+      return 'Login error: $e';
     }
   }
 
